@@ -1,0 +1,9 @@
+*.so
+*.a
+*.o
+*.c
+*.so*
+libs/raylib
+libs/*/
+.vscode/
+build/
