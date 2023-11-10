@@ -24,10 +24,12 @@ message(STATUS "Found raylib: ${RAYLIB_PATH}")
 endif()
 
 # Project sources
-# target_sources(${PROJECT_NAME} PRIVATE "src/utils/utils.cpp")
+target_sources(${PROJECT_NAME} PRIVATE "src/GameController.cpp")
 
 # Project includes
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/utils)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/interface)
 
 
 # raygui
