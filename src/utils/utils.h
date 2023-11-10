@@ -1,5 +1,4 @@
 /*
-** Boids
 ** File description:
 ** utils
 */

@@ -1,12 +1,15 @@
-# Boids
+# Raylib base project
 
 ## Description
 
-This is a simple project trying to implement [boids](https://en.wikipedia.org/wiki/Boids#:~:text=Boids%20is%20an%20artificial%20life,the%20flocking%20behaviour%20of%20birds.).
+This is a simple base to start a new raylib project, including: 
+  - Locally compiled raylib (submodule)
+  - Locally compiled raygui (submodule)
+  - Locally compiled logging library, spdlog (submodule)
+  - Basic interfaces/architecture to start any type of project
+  - Compilation script for submodules
 
-## Project Status
-
-🚧 This project is currently under construction. 🚧
+You don't need anything else than the compilers and their dependencies, simply follow these steps.
 
 ## Development Setup on Linux - Debian
 
