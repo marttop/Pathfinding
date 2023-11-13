@@ -1,15 +1,12 @@
-# Raylib base project
+# Pathfinding
 
 ## Description
 
-This is a simple base to start a new raylib project, including: 
-  - Locally compiled raylib (submodule)
-  - Locally compiled raygui (submodule)
-  - Locally compiled logging library, spdlog (submodule)
-  - Basic interfaces/architecture to start any type of project
-  - Compilation script for submodules
+This is a simple project trying to implement different kind of pathfinding algorithms in an editor.
 
-You don't need anything else than the compilers and their dependencies, simply follow these steps.
+## Project Status
+
+🚧 This project is currently under construction. 🚧
 
 ## Development Setup on Linux - Debian
 
