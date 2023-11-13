@@ -8,10 +8,13 @@
 
 #include "utils.h"
 #include "IController.hpp"
+#include "Grid.hpp"
 
 class GameController : IScene {
 public:
-    GameController(const std::string& sceneName) : IScene(sceneName) {}
+    GameController(const std::string& sceneName) : IScene(sceneName) {
+        entities.push_back(std::make_shared<Grid>(Vector2{0.f, 0.f}, Rectangle{0.f, 0.f}));
+    }
 
     ~GameController() = default;
 

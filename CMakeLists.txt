@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(Project)
+project(Pathfinding)
 
 
 ## ENABLE LOGGING ##
@@ -25,11 +25,13 @@ endif()
 
 # Project sources
 target_sources(${PROJECT_NAME} PRIVATE "src/GameController.cpp")
+target_sources(${PROJECT_NAME} PRIVATE "src/entities/Grid.cpp")
 
 # Project includes
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/utils)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/interface)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/entities)
 
 
 # raygui

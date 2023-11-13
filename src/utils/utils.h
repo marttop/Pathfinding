@@ -6,10 +6,11 @@
 #ifndef UTILS_H_
 #define UTILS_H_
 
-#define SCREEN_WIDTH 900
-#define SCREEN_HEIGHT 900
-#define TITLE "Boids"
-#define FPS 60
+#define SCREEN_WIDTH 2000
+#define SCREEN_HEIGHT 1000
+#define TILE_SCALE 2
+#define TITLE "Pathfinding"
+#define FPS 144
 
 #include "raylib.h"
 #include "raygui.h"

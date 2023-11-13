@@ -6,6 +6,8 @@
 
 enum class EntityType {
     Entity,
+    Grid,
+    Tile
 };
 
 /**
@@ -13,7 +15,16 @@ enum class EntityType {
  * @brief An interface for game entities.
  */
 class IEntity {
+protected:
+    Vector2 _pos;
+    Rectangle _rect;
+    EntityType _type;
 public:
+    /**
+     * @brief Default contructor.
+     */
+    IEntity(Vector2 pos = Vector2{0.f, 0.f}, Rectangle rect = Rectangle{0.f, 0.f, 0.f, 0.f}, EntityType type = EntityType::Entity) : _pos(pos), _rect(rect), _type(type) {};
+
     /**
      * @brief Default destructor.
      */
@@ -28,19 +39,19 @@ public:
      * @brief Gets the entity's position as a Vector2.
      * @return The entity's position as a Vector2.
      */
-    virtual Vector2 getPosition() const = 0;
+    virtual Vector2 getPosition() const {return _pos;}
 
     /**
      * @brief Gets the entity's type.
      * @return The entity's EntityType.
      */
-    virtual EntityType getEntityType() const = 0;
+    virtual EntityType getEntityType() const {return _type;}
 
     /**
      * @brief Sets the entity's position with a Vector2.
      * @param position The position to set the entity to.
      */
-    virtual void setPosition(const Vector2& position) = 0;
+    virtual void setPosition(const Vector2& position) {_pos = position;}
 
     /**
      * @brief Gets the entity's bounding rectangle.
@@ -51,9 +62,7 @@ public:
      *
      * @return The entity's bounding rectangle or an empty/invalid rectangle if not applicable.
      */
-    virtual Rectangle getRect() const {
-        return {0, 0, 0, 0};
-    }
+    virtual Rectangle getRect() const {return _rect;}
 
     /**
      * @brief Updates the entity.
