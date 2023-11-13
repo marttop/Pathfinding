@@ -10,8 +10,8 @@
 
 #include "IEntity.hpp"
 #include "IController.hpp"
-class Tile;
-enum TileType {
+
+enum TileTypeStyle {
     Empty,
     Selected,
     Wall,
@@ -20,11 +20,80 @@ enum TileType {
     Searching
 };
 
+enum TileType {
+    FREE,
+    PATH,
+    OBSTRUCTION,
+    SEARCH,
+    HOME,
+    GOAL
+};
+
 enum AlgoType {
     A_STAR,
     DIJKSTRA,
     BEST_FIT_SEARCH,
 };
+
+class Tile : public IEntity {
+public:
+    Tile(Vector2 pos, Rectangle rect, TileTypeStyle typeStyle = TileTypeStyle::Empty) : IEntity(pos, rect, EntityType::Tile) {
+        _typeStyle = typeStyle;
+        _realType = TileType::FREE;
+    }
+    ~Tile() = default;
+
+    const char* getTypeString() {
+        switch (_typeStyle) {
+            case Empty: return "Empty";
+            case Selected: return "Selected";
+            case Wall: return "Wall";
+            case Target: return "Target";
+            case Start: return "Start";
+            case Searching: return "Searching";
+            default: return "Unknown";
+        }
+    }
+
+    bool isSelected = false;
+    Color getColor() const {return _colors[_typeStyle];}
+    void setTypeStyle(const TileTypeStyle &typeStyle) {_typeStyle = typeStyle;}
+    TileTypeStyle getTypeStyle() const {return _typeStyle;}
+
+    void update(float deltaTime, std::vector<std::shared_ptr<IEntity>>& m_entities) override;
+    void draw() const override;
+
+    TileType _realType;
+protected:
+    TileTypeStyle _typeStyle;
+    Color _borderColor = BLACK;
+    std::vector<Color> _colors = { DARKGRAY, YELLOW, RAYWHITE, RED, GREEN, LIGHTGRAY };
+};
+
+typedef std::vector<std::vector<std::shared_ptr<Tile>>> grid_t;
+
+class IAlgo {
+public:
+
+    virtual void init(grid_t *grid) {
+        _grid = grid;
+        if (!_grid) return;
+
+        for (const auto& line : *_grid) {
+            for (const auto& tile : line) {
+                if (tile) {
+                    tile->setTypeStyle(TileTypeStyle::Wall);
+                    tile->_realType = TileType::OBSTRUCTION;
+                }
+            }
+        }
+    }
+    virtual void makeStep() = 0;
+protected:
+    grid_t *_grid = nullptr;
+private:
+};
+
 
 class Grid : public IEntity {
 public:
@@ -40,7 +109,7 @@ public:
 protected:
     Vector2 _mousePosition = GetMousePosition();
 //  ---- GUI ----
-    Rectangle _window = { SCREEN_WIDTH - 210, 10, 200, 250 };
+    Rectangle _window = { SCREEN_WIDTH - 210, 10, 200, 300 };
     bool _isDragging = false;
     Vector2 _dragOffset = { 0 };
     bool _wallCheck = true; //Checkbox for _typeToPut
@@ -51,43 +120,22 @@ protected:
     bool _bestFitCheck = false; //Checkbox for _algoType
     bool _isClearClicked = false;
     bool _isStartClicked = false;
-    TileType _typeToPut = Wall;
+    bool _isGenerateClicked = false;
+    TileTypeStyle _typeToPut = Wall;
     AlgoType _algoType = A_STAR;
 private:
     Tile *_selectedTile = nullptr;
     Tile *_targetTile = nullptr;
     Tile *_startTile = nullptr;
-    std::vector<std::vector<std::shared_ptr<Tile>>> _grid;
+    grid_t _grid;
+    std::shared_ptr<IAlgo> _algo = nullptr;
 };
 
-class Tile : public IEntity {
+class GenerateDepthFirstSearch : public IAlgo {
 public:
-    Tile(Vector2 pos, Rectangle rect, TileType type = TileType::Empty) : IEntity(pos, rect, EntityType::Tile){_type = type;}
-    ~Tile() = default;
-
-    const char* getTypeString() {
-        switch (_type) {
-            case Empty: return "Empty";
-            case Selected: return "Selected";
-            case Wall: return "Wall";
-            case Target: return "Target";
-            case Start: return "Start";
-            case Searching: return "Searching";
-            default: return "Unknown";
-        }
-    }
-
-    bool isSelected = false;
-    Color getColor() const {return _colors[_type];}
-    void setType(const TileType &type) {_type = type;}
-    TileType getType() const {return _type;}
-
-    void update(float deltaTime, std::vector<std::shared_ptr<IEntity>>& m_entities) override;
-    void draw() const override;
-protected:
-    TileType _type;
-    Color _borderColor = BLACK;
-    std::vector<Color> _colors = { DARKGRAY, YELLOW, RAYWHITE, RED, GREEN, LIGHTGRAY };
+    GenerateDepthFirstSearch(){};
+    ~GenerateDepthFirstSearch() = default;
+    void makeStep() override;
 };
 
 #endif /* !GRID_HPP_ */

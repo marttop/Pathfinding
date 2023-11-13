@@ -15,6 +15,27 @@ int main() {
     GameController game("Game");
     float deltaTime;
 
+    //INIT GUI
+    //Init GUI
+    Color windowColor = (Color){ 252, 255, 59, 170 }; // Semi-transparent yellow
+    Color hoverColor = (Color){ 80, 80, 80, 170 }; // Semi-transparent dark grey
+
+    // GuiSetStyle(STATUSBAR, BASE_COLOR_NORMAL, ColorToInt(YELLOW));
+    GuiSetStyle(DEFAULT, BACKGROUND_COLOR, ColorToInt(windowColor));
+    GuiSetStyle(DEFAULT, BORDER_COLOR_NORMAL, ColorToInt(BLACK));
+    GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
+    GuiSetStyle(DEFAULT, TEXT_COLOR_FOCUSED, ColorToInt(WHITE));
+    GuiSetStyle(DEFAULT, BASE_COLOR_FOCUSED, ColorToInt(hoverColor));
+
+    GuiSetStyle(CHECKBOX, BORDER_COLOR_NORMAL, ColorToInt(BLACK));
+    GuiSetStyle(CHECKBOX, BORDER_COLOR_NORMAL, ColorToInt(BLACK));
+    GuiSetStyle(CHECKBOX, BORDER_COLOR_FOCUSED, ColorToInt(WHITE));
+
+    GuiSetStyle(BUTTON, BORDER_COLOR_NORMAL, ColorToInt(BLACK));
+    // GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(YELLOW));
+    GuiSetStyle(BUTTON, BORDER_COLOR_FOCUSED, ColorToInt(WHITE));
+    GuiSetStyle(BUTTON, TEXT_COLOR_FOCUSED, ColorToInt(WHITE));
+
     while (!WindowShouldClose())
     {
         //Update

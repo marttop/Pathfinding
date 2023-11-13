@@ -26,11 +26,18 @@ Grid::~Grid()
 // -----------GRID-----------
 void Grid::update(float deltaTime, std::vector<std::shared_ptr<IEntity>> &m_entities)
 {
-    _mousePosition = GetMousePosition();
-    for (auto lines : _grid) {
-        for (auto tile : lines) {
-            tile->update(deltaTime, m_entities);
+    //Clock updates
+    static float stepClock = 0.0f;
 
+    //Mouse update
+    _mousePosition = GetMousePosition();
+    bool isMouseOnUI = CheckCollisionPointRec(_mousePosition, _window);
+
+    //Grid update
+    for (const auto &lines : _grid) {
+        for (const auto &tile : lines) {
+            tile->update(deltaTime, m_entities);
+            if (isMouseOnUI) continue;
             //Override tile update here with events if needed
             bool isCollision = CheckCollisionPointRec(_mousePosition, tile->getRect());
             if (isCollision) {
@@ -40,8 +47,19 @@ void Grid::update(float deltaTime, std::vector<std::shared_ptr<IEntity>> &m_enti
         }
     }
 
+    //Algorithm update
+    if (_algo) {
+        stepClock += deltaTime;
+        if (stepClock >= 0.1f) {
+            stepClock = 0.0f;
+            WARNING("0.1Sec");
+            _algo->makeStep();
+        }
+    }
+
     events();
 
+    //GUI dragging update
     if (_isDragging && IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
         _window.x = _mousePosition.x - _dragOffset.x;
         _window.y = _mousePosition.y - _dragOffset.y;
@@ -55,8 +73,8 @@ void Grid::update(float deltaTime, std::vector<std::shared_ptr<IEntity>> &m_enti
 
 void Grid::draw() const
 {
-    for (auto lines : _grid) {
-        for (auto tile : lines) {
+    for (const auto &lines : _grid) {
+        for (const auto &tile : lines) {
             tile->draw();
         }
     }
@@ -65,7 +83,7 @@ void Grid::draw() const
 void Grid::drawGUI()
 {
     //Draw GUI in front of the rest
-    if (GuiWindowBox(_window, "Information")) {
+    if (GuiWindowBox(_window, "Admin panel")) {
         // Close button pressed
     }
     int i = (int)_mousePosition.y / (10 * TILE_SCALE);
@@ -86,20 +104,21 @@ void Grid::drawGUI()
     bool wasBestFitChecked = _bestFitCheck;
 
     GuiCheckBox((Rectangle){_window.x + 10, _window.y + 110, 20, 20}, "Wall", &_wallCheck);
-    GuiCheckBox((Rectangle){_window.x + 10, _window.y + 130, 20, 20}, "Start", &_startCheck);
-    GuiCheckBox((Rectangle){_window.x + 10, _window.y + 150, 20, 20}, "Target", &_targetCheck);
+    GuiCheckBox((Rectangle){_window.x + 10, _window.y + 135, 20, 20}, "Start", &_startCheck);
+    GuiCheckBox((Rectangle){_window.x + 10, _window.y + 160, 20, 20}, "Target", &_targetCheck);
     GuiCheckBox((Rectangle){_window.x + 130, _window.y + 110, 20, 20}, "A-Star", &_aStarCheck);
-    GuiCheckBox((Rectangle){_window.x + 130, _window.y + 130, 20, 20}, "Dijkstra", &_dijkstraCheck);
-    GuiCheckBox((Rectangle){_window.x + 130, _window.y + 150, 20, 20}, "Best fit", &_bestFitCheck);
+    GuiCheckBox((Rectangle){_window.x + 130, _window.y + 135, 20, 20}, "Dijkstra", &_dijkstraCheck);
+    GuiCheckBox((Rectangle){_window.x + 130, _window.y + 160, 20, 20}, "Best fit", &_bestFitCheck);
 
-    if (GuiButton((Rectangle){_window.x + 10, _window.y + 180, _window.width - 20, 30}, "Clear")) _isClearClicked = true;
-    if (GuiButton((Rectangle){_window.x + 10, _window.y + 215, _window.width - 20, 30}, "Start")) _isStartClicked = true;
+    if (GuiButton((Rectangle){_window.x + 10, _window.y + 185, _window.width - 20, 30}, "Clear")) _isClearClicked = true;
+    if (GuiButton((Rectangle){_window.x + 10, _window.y + 220, _window.width - 20, 30}, "Start")) _isStartClicked = true;
+    if (GuiButton((Rectangle){_window.x + 10, _window.y + 255, _window.width - 20, 30}, "Generate Maze")) _isGenerateClicked = true;
 
     if (_wallCheck != wasWallChecked) {
         if (_wallCheck) {
             _startCheck = false;
             _targetCheck = false;
-            _typeToPut = TileType::Wall;
+            _typeToPut = TileTypeStyle::Wall;
         } else {
             _wallCheck = true;
         }
@@ -107,7 +126,7 @@ void Grid::drawGUI()
         if (_startCheck) {
             _wallCheck = false;
             _targetCheck = false;
-            _typeToPut = TileType::Start;
+            _typeToPut = TileTypeStyle::Start;
         } else {
             _startCheck = true;
         }
@@ -115,7 +134,7 @@ void Grid::drawGUI()
         if (_targetCheck) {
             _wallCheck = false;
             _startCheck = false;
-            _typeToPut = TileType::Target;
+            _typeToPut = TileTypeStyle::Target;
         } else {
             _targetCheck = true;
         }
@@ -160,8 +179,17 @@ void Grid::events()
     }
     if (_isStartClicked) {
         //Pathfinding
-        INFO("Pressed - Start");
+        INFO("Pressed - Start Solving");
         _isStartClicked = false;
+        return;
+    }
+    if (_isGenerateClicked) {
+        //Maze Genration
+        INFO("Pressed - Generate Maze");
+        _algo = nullptr;
+        _algo = std::make_shared<GenerateDepthFirstSearch>();
+        _algo->init(&_grid);
+        _isGenerateClicked = false;
         return;
     }
 
@@ -174,28 +202,39 @@ void Grid::events()
 
     if (CheckCollisionPointRec(_mousePosition, _window)) {return;};
 
+    //Need to be the last to check
     if (!_isDragging) {
         if (IsMouseButtonDown(0)) {
             if (_selectedTile != nullptr) {
-                if (_selectedTile->getType() == TileType::Empty) {
-                    if (_typeToPut == TileType::Start && _startTile != nullptr) return;
-                    else if (_typeToPut == TileType::Start && _startTile == nullptr) _startTile = _selectedTile;
-                    if (_typeToPut == TileType::Target && _targetTile != nullptr) return;
-                    else if (_typeToPut == TileType::Target && _targetTile == nullptr) _targetTile = _selectedTile;
-                    _selectedTile->setType(_typeToPut);
+                if (_selectedTile->getTypeStyle() == TileTypeStyle::Empty) {
+                    if (_typeToPut == TileTypeStyle::Start && _startTile != nullptr) return;
+                    else if (_typeToPut == TileTypeStyle::Target && _targetTile != nullptr) return;
+                    else if (_typeToPut == TileTypeStyle::Start && _startTile == nullptr) {
+                        _startTile = _selectedTile;
+                        _selectedTile->_realType = TileType::HOME;
+                    }
+                    else if (_typeToPut == TileTypeStyle::Target && _targetTile == nullptr) {
+                        _targetTile = _selectedTile;
+                        _selectedTile->_realType = TileType::GOAL;
+                    }
+                    _selectedTile->setTypeStyle(_typeToPut);
+                    if (_typeToPut == TileTypeStyle::Wall) {
+                        _selectedTile->_realType = OBSTRUCTION;
+                    }
                 }
             }
         }
         else if (IsMouseButtonDown(1)) {
             if (_selectedTile != nullptr) {
-                if (_selectedTile->getType() != TileType::Empty) {
-                    if (_selectedTile->getType() == TileType::Target) {
+                if (_selectedTile->getTypeStyle() != TileTypeStyle::Empty) {
+                    if (_selectedTile->getTypeStyle() == TileTypeStyle::Target) {
                         _targetTile = nullptr;
                     }
-                    else if (_selectedTile->getType() == TileType::Start) {
+                    else if (_selectedTile->getTypeStyle() == TileTypeStyle::Start) {
                         _startTile = nullptr;
                     }
-                    _selectedTile->setType(TileType::Empty);
+                    _selectedTile->setTypeStyle(TileTypeStyle::Empty);
+                    _selectedTile->_realType = TileType::FREE;
                 }
             }
         }
@@ -205,9 +244,9 @@ void Grid::events()
 void Grid::resetGrid()
 {
     _isClearClicked = false;
-    for (auto lines : _grid) {
-        for (auto tile : lines) {
-            tile->setType(TileType::Empty);
+    for (const auto &lines : _grid) {
+        for (const auto &tile : lines) {
+            tile->setTypeStyle(TileTypeStyle::Empty);
             _selectedTile = nullptr;
             _startTile = nullptr;
             _targetTile = nullptr;
@@ -223,9 +262,9 @@ void Tile::update(float deltaTime, std::vector<std::shared_ptr<IEntity>> &m_enti
 
 void Tile::draw() const
 {
-    DrawRectangleRec(_rect, _colors[_type]);
+    DrawRectangleRec(_rect, _colors[_typeStyle]);
     if (isSelected) {
-        DrawRectangleLines(_rect.x, _rect.y,_rect.width, _rect.height, _colors[TileType::Selected]);
+        DrawRectangleLines(_rect.x, _rect.y,_rect.width, _rect.height, _colors[TileTypeStyle::Selected]);
     } else {
         DrawRectangleLines(_rect.x, _rect.y,_rect.width, _rect.height, _borderColor);
     }
