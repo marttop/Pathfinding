@@ -76,16 +76,24 @@ void Grid::drawGUI()
         GuiLabel((Rectangle){_window.x + 10, _window.y + 70, _window.width - 20, 20}, TextFormat("Tile type : %s", _grid[i][j] ? _grid[i][j]->getTypeString() : "NaN"));
     }
     GuiLabel((Rectangle){_window.x + 10, _window.y + 90, _window.width - 20, 20}, "Type to put");
+    GuiLabel((Rectangle){_window.x + 130, _window.y + 90, _window.width - 20, 20}, "Algorithms");
 
     bool wasWallChecked = _wallCheck;
     bool wasStartChecked = _startCheck;
     bool wasTargetChecked = _targetCheck;
+    bool wasAStarChecked = _aStarCheck;
+    bool wasDijkstraChecked = _dijkstraCheck;
+    bool wasBestFitChecked = _bestFitCheck;
 
     GuiCheckBox((Rectangle){_window.x + 10, _window.y + 110, 20, 20}, "Wall", &_wallCheck);
     GuiCheckBox((Rectangle){_window.x + 10, _window.y + 130, 20, 20}, "Start", &_startCheck);
     GuiCheckBox((Rectangle){_window.x + 10, _window.y + 150, 20, 20}, "Target", &_targetCheck);
+    GuiCheckBox((Rectangle){_window.x + 130, _window.y + 110, 20, 20}, "A-Star", &_aStarCheck);
+    GuiCheckBox((Rectangle){_window.x + 130, _window.y + 130, 20, 20}, "Dijkstra", &_dijkstraCheck);
+    GuiCheckBox((Rectangle){_window.x + 130, _window.y + 150, 20, 20}, "Best fit", &_bestFitCheck);
 
     if (GuiButton((Rectangle){_window.x + 10, _window.y + 180, _window.width - 20, 30}, "Clear")) _isClearClicked = true;
+    if (GuiButton((Rectangle){_window.x + 10, _window.y + 215, _window.width - 20, 30}, "Start")) _isStartClicked = true;
 
     if (_wallCheck != wasWallChecked) {
         if (_wallCheck) {
@@ -112,6 +120,32 @@ void Grid::drawGUI()
             _targetCheck = true;
         }
     }
+
+    if (_aStarCheck != wasAStarChecked) {
+        if (_aStarCheck) {
+            _dijkstraCheck = false;
+            _bestFitCheck = false;
+            _algoType = AlgoType::A_STAR;
+        } else {
+            _aStarCheck = true;
+        }
+    } else if (_dijkstraCheck != wasDijkstraChecked) {
+        if (_dijkstraCheck) {
+            _aStarCheck = false;
+            _bestFitCheck = false;
+            _algoType = AlgoType::DIJKSTRA;
+        } else {
+            _dijkstraCheck = true;
+        }
+    } else if (_bestFitCheck != wasBestFitChecked) {
+        if (_bestFitCheck) {
+            _aStarCheck = false;
+            _dijkstraCheck = false;
+            _algoType = AlgoType::BEST_FIT_SEARCH;
+        } else {
+            _bestFitCheck = true;
+        }
+    }
 }
 
 
@@ -120,7 +154,14 @@ void Grid::events()
 {
     //GUI events
     if (_isClearClicked) {
+        INFO("Pressed - Clear");
         resetGrid();
+        return;
+    }
+    if (_isStartClicked) {
+        //Pathfinding
+        INFO("Pressed - Start");
+        _isStartClicked = false;
         return;
     }
 

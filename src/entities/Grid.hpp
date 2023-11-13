@@ -20,6 +20,12 @@ enum TileType {
     Searching
 };
 
+enum AlgoType {
+    A_STAR,
+    DIJKSTRA,
+    BEST_FIT_SEARCH,
+};
+
 class Grid : public IEntity {
 public:
     Grid(Vector2 pos, Rectangle rect);
@@ -37,11 +43,16 @@ protected:
     Rectangle _window = { SCREEN_WIDTH - 210, 10, 200, 250 };
     bool _isDragging = false;
     Vector2 _dragOffset = { 0 };
-    bool _wallCheck = true;
-    bool _startCheck = false;
-    bool _targetCheck = false;
+    bool _wallCheck = true; //Checkbox for _typeToPut
+    bool _startCheck = false; //Checkbox for _typeToPut
+    bool _targetCheck = false; //Checkbox for _typeToPut
+    bool _aStarCheck = true; //Checkbox for _algoType
+    bool _dijkstraCheck = false; //Checkbox for _algoType
+    bool _bestFitCheck = false; //Checkbox for _algoType
     bool _isClearClicked = false;
+    bool _isStartClicked = false;
     TileType _typeToPut = Wall;
+    AlgoType _algoType = A_STAR;
 private:
     Tile *_selectedTile = nullptr;
     Tile *_targetTile = nullptr;
