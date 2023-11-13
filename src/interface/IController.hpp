@@ -53,6 +53,11 @@ public:
      * @brief Draws all entities in the scene.
      */
     virtual void draw() const = 0;
+
+    /**
+     * @brief Draws the scene's GUI.
+     */
+    virtual void drawGUI() {};
 };
 
 #endif /* !ICONTROLLER_HPP_ */

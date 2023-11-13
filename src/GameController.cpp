@@ -21,5 +21,6 @@ void GameController::draw() const
     ClearBackground(BLUE);
     for (auto e : entities) {
         e->draw();
+        e->drawGUI();
     }
 }

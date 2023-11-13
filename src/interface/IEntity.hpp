@@ -36,6 +36,11 @@ public:
     virtual void draw() const = 0;
 
     /**
+     * @brief Draws the entity's GUI on the screen.
+     */
+    virtual void drawGUI() {};
+
+    /**
      * @brief Gets the entity's position as a Vector2.
      * @return The entity's position as a Vector2.
      */

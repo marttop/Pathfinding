@@ -7,7 +7,6 @@
 #define GAMECONTROLLER_HPP_
 
 #include "utils.h"
-#include "IController.hpp"
 #include "Grid.hpp"
 
 class GameController : IScene {
