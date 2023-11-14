@@ -74,7 +74,7 @@ Alternatively, if you're using an IDE such as Visual Studio or CLion, you can co
 
 Note that disabling logging can improve the performance of the game, but may make it more difficult to diagnose issues if they arise. It's recommended to leave logging enabled during development and testing, and disable it only for production builds.
 
-## Submodules
+## Used Submodules
 
 - [raysan5/raylib - 4.5.0](https://github.com/raysan5/raylib/tree/4.5.0)
 - [raysan5/raygui - 4.0](https://github.com/raysan5/raygui/tree/3.2)
