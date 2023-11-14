@@ -67,8 +67,11 @@ public:
     void update(float deltaTime, std::vector<std::shared_ptr<IEntity>>& m_entities) override;
     void draw() const override;
 
+
+    //Used only by Algos
     TileType realType = TileType::FREE;
     bool isVisited = false;
+    std::shared_ptr<Tile> inBtwWall = nullptr;
 protected:
     TileTypeStyle _typeStyle;
     Color _borderColor = BLACK;

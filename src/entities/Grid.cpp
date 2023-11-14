@@ -53,12 +53,12 @@ void Grid::update(float deltaTime, std::vector<std::shared_ptr<IEntity>> &m_enti
     if (_algo) {
         stepClock += deltaTime;
         if (!_algo->isCompleted()) {
-            if (stepClock >= 0.01f) {
+            if (stepClock >= 0.001f) {
                 stepClock = 0.0f;
                 _algo->makeStep();
             }
         } else {
-            INFO("{0} Algorithm just finshed", _algo->getAlgoTypeString());
+            INFO("{0} algorithm just finshed", _algo->getAlgoTypeString());
             _algo = nullptr;
         }
     }
@@ -94,13 +94,20 @@ void Grid::drawGUI()
     }
     int i = (int)_mousePosition.y / (10 * TILE_SCALE);
     int j = (int)_mousePosition.x / (10 * TILE_SCALE);
-    GuiLabel((Rectangle){_window.x + 10, _window.y + 30, _window.width - 20, 20}, TextFormat("Mouse Position : %d, %d", (int)_mousePosition.x, (int)_mousePosition.y));
-    GuiLabel((Rectangle){_window.x + 10, _window.y + 50, _window.width - 20, 20}, TextFormat("Current index  : %d, %d", i, j));
+    float startY = _window.y + 30.0f;
+    float yOffset = 35.0f, yOffset1 = 25.0f, yOffset2 = 20.0f;
+    float currentY = startY;
+    GuiLabel((Rectangle){_window.x + 10, currentY, _window.width - 20, 20}, TextFormat("Mouse Position : %d, %d", (int)_mousePosition.x, (int)_mousePosition.y));
+    currentY += yOffset2;
+    GuiLabel((Rectangle){_window.x + 10, currentY, _window.width - 20, 20}, TextFormat("Current index  : %d, %d", i, j));
+    currentY += yOffset2;
     if (i >= 0 && i < _grid.size() && j >= 0 && j < _grid[i].size()) {
-        GuiLabel((Rectangle){_window.x + 10, _window.y + 70, _window.width - 20, 20}, TextFormat("Tile type : %s", _grid[i][j] ? _grid[i][j]->getTypeString() : "NaN"));
+        GuiLabel((Rectangle){_window.x + 10, currentY, _window.width - 20, 20}, TextFormat("Tile type : %s", _grid[i][j] ? _grid[i][j]->getTypeString() : "NaN"));
+        currentY += yOffset2;
     }
-    GuiLabel((Rectangle){_window.x + 10, _window.y + 90, _window.width - 20, 20}, "Type to put");
-    GuiLabel((Rectangle){_window.x + 130, _window.y + 90, _window.width - 20, 20}, "Algorithms");
+    GuiLabel((Rectangle){_window.x + 10, currentY, _window.width - 20, 20}, "Type to put");
+    GuiLabel((Rectangle){_window.x + 130, currentY, _window.width - 20, 20}, "Algorithms");
+    currentY += yOffset2;
 
     bool wasWallChecked = _wallCheck;
     bool wasStartChecked = _startCheck;
@@ -109,16 +116,22 @@ void Grid::drawGUI()
     bool wasDijkstraChecked = _dijkstraCheck;
     bool wasBestFitChecked = _bestFitCheck;
 
-    GuiCheckBox((Rectangle){_window.x + 10, _window.y + 110, 20, 20}, "Wall", &_wallCheck);
-    GuiCheckBox((Rectangle){_window.x + 10, _window.y + 135, 20, 20}, "Start", &_startCheck);
-    GuiCheckBox((Rectangle){_window.x + 10, _window.y + 160, 20, 20}, "Target", &_targetCheck);
-    GuiCheckBox((Rectangle){_window.x + 130, _window.y + 110, 20, 20}, "A-Star", &_aStarCheck);
-    GuiCheckBox((Rectangle){_window.x + 130, _window.y + 135, 20, 20}, "Dijkstra", &_dijkstraCheck);
-    GuiCheckBox((Rectangle){_window.x + 130, _window.y + 160, 20, 20}, "Best fit", &_bestFitCheck);
+    GuiCheckBox((Rectangle){_window.x + 10, currentY, 20, 20}, "Wall", &_wallCheck);
+    GuiCheckBox((Rectangle){_window.x + 130, currentY, 20, 20}, "A-Star", &_aStarCheck);
+    currentY += yOffset1;
+    GuiCheckBox((Rectangle){_window.x + 10, currentY, 20, 20}, "Start", &_startCheck);
+    GuiCheckBox((Rectangle){_window.x + 130, currentY, 20, 20}, "Dijkstra", &_dijkstraCheck);
+    currentY += yOffset1;
+    GuiCheckBox((Rectangle){_window.x + 10, currentY, 20, 20}, "Target", &_targetCheck);
+    GuiCheckBox((Rectangle){_window.x + 130, currentY, 20, 20}, "Best fit", &_bestFitCheck);
+    currentY += yOffset1;
 
-    if (GuiButton((Rectangle){_window.x + 10, _window.y + 185, _window.width - 20, 30}, "Clear")) _isClearClicked = true;
-    if (GuiButton((Rectangle){_window.x + 10, _window.y + 220, _window.width - 20, 30}, "Start")) _isStartClicked = true;
-    if (GuiButton((Rectangle){_window.x + 10, _window.y + 255, _window.width - 20, 30}, "Generate Maze")) _isGenerateClicked = true;
+    if (GuiButton((Rectangle){_window.x + 10, currentY, _window.width - 20, 30}, "Clear")) _isClearClicked = true;
+    currentY += yOffset;
+    if (GuiButton((Rectangle){_window.x + 10, currentY, _window.width - 20, 30}, "Start")) _isStartClicked = true;
+    currentY += yOffset;
+    if (GuiButton((Rectangle){_window.x + 10, currentY, _window.width - 20, 30}, "Generate Maze")) _isGenerateClicked = true;
+    currentY += yOffset;
 
     if (_wallCheck != wasWallChecked) {
         if (_wallCheck) {

@@ -14,7 +14,7 @@ void GenerateDepthFirstSearch::makeStep()
     }
     std::shared_ptr<Tile> nextNeighbor = getRandomNeighbor();
     if (nextNeighbor) {
-        nextNeighbor->setTypeStyle(TileTypeStyle::Empty);
+        nextNeighbor->setTypeStyle(TileTypeStyle::Searching);
         nextNeighbor->realType = TileType::FREE;
         convertToPathBetween(_currentTile, nextNeighbor);
         _myStack.push(_currentTile);
@@ -22,7 +22,13 @@ void GenerateDepthFirstSearch::makeStep()
         _currentTile->isVisited = true;
     } else {
         if (!_myStack.empty()) {
+            _currentTile->setTypeStyle(TileTypeStyle::Empty);
             _currentTile = _myStack.top();
+            _currentTile->setTypeStyle(TileTypeStyle::Empty);
+            if (_currentTile->inBtwWall) {
+                _currentTile->inBtwWall->setTypeStyle(TileTypeStyle::Empty);
+                _currentTile->inBtwWall = nullptr;
+            }
             _myStack.pop();
         } else {
             _currentTile = nullptr;
@@ -51,7 +57,8 @@ void GenerateDepthFirstSearch::convertToPathBetween(const std::shared_ptr<Tile>&
     }
 
     if (wallTile) {
-        wallTile->setTypeStyle(TileTypeStyle::Empty);
+        _currentTile->inBtwWall = wallTile;
+        wallTile->setTypeStyle(TileTypeStyle::Searching);
         wallTile->realType = TileType::FREE;
     }
 }
