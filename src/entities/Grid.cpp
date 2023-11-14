@@ -15,6 +15,8 @@ Grid::Grid(Vector2 pos, Rectangle rect) : IEntity(pos, rect, EntityType::Grid)
         for (unsigned int j = 0; j < NUM_TILES_X; j++) {
             Vector2 tilePos = Vector2{static_cast<float>(j) * tileWidth, static_cast<float>(i) * tileHeight};
             _grid[i][j] = std::make_shared<Tile>(tilePos, Rectangle{tilePos.x, tilePos.y, tileWidth, tileHeight});
+            _grid[i][j]->posI = i;
+            _grid[i][j]->posJ = j;
         }
     }
 }
@@ -50,10 +52,14 @@ void Grid::update(float deltaTime, std::vector<std::shared_ptr<IEntity>> &m_enti
     //Algorithm update
     if (_algo) {
         stepClock += deltaTime;
-        if (stepClock >= 0.1f) {
-            stepClock = 0.0f;
-            WARNING("0.1Sec");
-            _algo->makeStep();
+        if (!_algo->isCompleted()) {
+            if (stepClock >= 0.01f) {
+                stepClock = 0.0f;
+                _algo->makeStep();
+            }
+        } else {
+            INFO("{0} Algorithm just finshed", _algo->getAlgoTypeString());
+            _algo = nullptr;
         }
     }
 
@@ -211,15 +217,15 @@ void Grid::events()
                     else if (_typeToPut == TileTypeStyle::Target && _targetTile != nullptr) return;
                     else if (_typeToPut == TileTypeStyle::Start && _startTile == nullptr) {
                         _startTile = _selectedTile;
-                        _selectedTile->_realType = TileType::HOME;
+                        _selectedTile->realType = TileType::HOME;
                     }
                     else if (_typeToPut == TileTypeStyle::Target && _targetTile == nullptr) {
                         _targetTile = _selectedTile;
-                        _selectedTile->_realType = TileType::GOAL;
+                        _selectedTile->realType = TileType::GOAL;
                     }
                     _selectedTile->setTypeStyle(_typeToPut);
                     if (_typeToPut == TileTypeStyle::Wall) {
-                        _selectedTile->_realType = OBSTRUCTION;
+                        _selectedTile->realType = OBSTRUCTION;
                     }
                 }
             }
@@ -234,7 +240,7 @@ void Grid::events()
                         _startTile = nullptr;
                     }
                     _selectedTile->setTypeStyle(TileTypeStyle::Empty);
-                    _selectedTile->_realType = TileType::FREE;
+                    _selectedTile->realType = TileType::FREE;
                 }
             }
         }

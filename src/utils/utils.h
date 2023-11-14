@@ -21,5 +21,6 @@
 #include <string>
 #include <memory>
 #include <map>
+#include <stack>
 
 #endif /* !UTILS_H_ */

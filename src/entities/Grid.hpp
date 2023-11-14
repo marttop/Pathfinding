@@ -30,18 +30,22 @@ enum TileType {
 };
 
 enum AlgoType {
+    NONE,
     A_STAR,
     DIJKSTRA,
     BEST_FIT_SEARCH,
+    DEPTH_FIRST_SEARCH
 };
 
 class Tile : public IEntity {
 public:
     Tile(Vector2 pos, Rectangle rect, TileTypeStyle typeStyle = TileTypeStyle::Empty) : IEntity(pos, rect, EntityType::Tile) {
         _typeStyle = typeStyle;
-        _realType = TileType::FREE;
     }
     ~Tile() = default;
+
+    unsigned int posI = 0;
+    unsigned int posJ = 0;
 
     const char* getTypeString() {
         switch (_typeStyle) {
@@ -63,7 +67,8 @@ public:
     void update(float deltaTime, std::vector<std::shared_ptr<IEntity>>& m_entities) override;
     void draw() const override;
 
-    TileType _realType;
+    TileType realType = TileType::FREE;
+    bool isVisited = false;
 protected:
     TileTypeStyle _typeStyle;
     Color _borderColor = BLACK;
@@ -75,22 +80,22 @@ typedef std::vector<std::vector<std::shared_ptr<Tile>>> grid_t;
 class IAlgo {
 public:
 
-    virtual void init(grid_t *grid) {
-        _grid = grid;
-        if (!_grid) return;
-
-        for (const auto& line : *_grid) {
-            for (const auto& tile : line) {
-                if (tile) {
-                    tile->setTypeStyle(TileTypeStyle::Wall);
-                    tile->_realType = TileType::OBSTRUCTION;
-                }
-            }
+    virtual void init(grid_t *grid) = 0;
+    virtual void makeStep() = 0;
+    virtual bool isCompleted() const {return _isCompleted;}
+    virtual const char* getAlgoTypeString() {
+        switch (_algoType) {
+            case A_STAR: return "A*";
+            case DIJKSTRA: return "Dijkstra";
+            case BEST_FIT_SEARCH: return "Best Fit Search";
+            case DEPTH_FIRST_SEARCH: return "Depth First Search";
+            default: return "Unknown";
         }
     }
-    virtual void makeStep() = 0;
 protected:
+    AlgoType _algoType = AlgoType::NONE;
     grid_t *_grid = nullptr;
+    bool _isCompleted = false;
 private:
 };
 
@@ -132,10 +137,33 @@ private:
 };
 
 class GenerateDepthFirstSearch : public IAlgo {
+    typedef std::pair<int, int> grid_pos_t;
+protected:
+    std::stack<std::shared_ptr<Tile>> _myStack;
+    std::shared_ptr<Tile> _currentTile = nullptr;
 public:
     GenerateDepthFirstSearch(){};
     ~GenerateDepthFirstSearch() = default;
     void makeStep() override;
+    void init(grid_t *grid) override {
+        _grid = grid;
+        if (!_grid) return;
+
+        for (const auto& line : *_grid) {
+            for (const auto& tile : line) {
+                if (tile) {
+                    tile->setTypeStyle(TileTypeStyle::Wall);
+                    tile->realType = TileType::OBSTRUCTION;
+                    tile->isVisited = false;
+                }
+            }
+        }
+        _currentTile = (*_grid)[1][1];
+        _algoType = AlgoType::DEPTH_FIRST_SEARCH;
+    }
+private:
+    void convertToPathBetween(const std::shared_ptr<Tile>& current, const std::shared_ptr<Tile>& next);
+    std::shared_ptr<Tile> getRandomNeighbor() const;
 };
 
 #endif /* !GRID_HPP_ */
