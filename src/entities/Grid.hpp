@@ -44,8 +44,8 @@ public:
     }
     ~Tile() = default;
 
-    unsigned int posI = 0;
-    unsigned int posJ = 0;
+    int posI = 0;
+    int posJ = 0;
 
     const char* getTypeString() {
         switch (_typeStyle) {
@@ -72,7 +72,7 @@ public:
 protected:
     TileTypeStyle _typeStyle;
     Color _borderColor = BLACK;
-    std::vector<Color> _colors = { DARKGRAY, YELLOW, RAYWHITE, RED, GREEN, LIGHTGRAY };
+    std::vector<Color> _colors = { LIGHTGRAY, YELLOW, DARKGRAY, RED, GREEN, BLUE };
 };
 
 typedef std::vector<std::vector<std::shared_ptr<Tile>>> grid_t;

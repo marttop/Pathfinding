@@ -195,6 +195,7 @@ void Grid::events()
         _algo = nullptr;
         _algo = std::make_shared<GenerateDepthFirstSearch>();
         _algo->init(&_grid);
+        INFO("Using -> {0}", _algo->getAlgoTypeString());
         _isGenerateClicked = false;
         return;
     }

@@ -56,20 +56,20 @@ void GenerateDepthFirstSearch::convertToPathBetween(const std::shared_ptr<Tile>&
     }
 }
 
-std::shared_ptr<Tile> GenerateDepthFirstSearch::getRandomNeighbor() const {
+std::shared_ptr<Tile> GenerateDepthFirstSearch::getRandomNeighbor() const
+{
     std::vector<grid_pos_t> unvisitedNeighbors;
 
-    // Adjusted boundary checks
     std::vector<grid_pos_t> possibleNeighbors = {
-        {_currentTile->posI >= 3 ? _currentTile->posI - 2 : 0, _currentTile->posJ}, // Up
-        {_currentTile->posI < _grid->size() - 3 ? _currentTile->posI + 2 : 0, _currentTile->posJ}, // Down
-        {_currentTile->posI, _currentTile->posJ >= 3 ? _currentTile->posJ - 2 : 0}, // Left
-        {_currentTile->posI, _currentTile->posJ < (*_grid)[0].size() - 3 ? _currentTile->posJ + 2 : 0}  // Right
+        {_currentTile->posI - 2, _currentTile->posJ}, // Up
+        {_currentTile->posI + 2, _currentTile->posJ}, // Down
+        {_currentTile->posI, _currentTile->posJ - 2}, // Left
+        {_currentTile->posI, _currentTile->posJ + 2}  // Right
     };
 
     for (const auto& pos : possibleNeighbors) {
-        if (pos.first > 0 && pos.first < _grid->size() - 1 &&
-            pos.second > 0 && pos.second < (*_grid)[0].size() - 1 &&
+        if (pos.first >= 1 && pos.first < _grid->size() - 1 &&
+            pos.second >= 1 && pos.second < (*_grid)[0].size() - 1 &&
             !(*_grid)[pos.first][pos.second]->isVisited) {
             unvisitedNeighbors.push_back(pos);
         }
