@@ -43,17 +43,17 @@ Keep in mind that if you use your own raylib you will need to tweak the cmake bu
 
 ### Build the project
 
-#### Clone the submodules
+- **Clone the submodules:**
 ```bash
 git submodule update --init --recursive
 ```
 
-#### Build the dependencies
+- **Build the dependencies:**
 ```bash
 ./build_submodules.sh
 ```
 
-#### Build the final binary
+- **Build the final binary:**
 ```
 mkdir build
 cd build
