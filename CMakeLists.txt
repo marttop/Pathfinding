@@ -37,8 +37,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/sr
 
 # raygui
 set(RAYGUI_PATH "${CMAKE_CURRENT_SOURCE_DIR}/libs/raygui")
-find_library(RAYGUI_LIBRARY NAMES raygui PATHS "${RAYGUI_PATH}" NO_DEFAULT_PATH)
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${RAYGUI_LIBRARY}" $<TARGET_FILE_DIR:${PROJECT_NAME}>)
+find_library(RAYGUI_LIBRARY NAMES raygui PATHS "${RAYGUI_PATH}")
 target_link_libraries(${PROJECT_NAME} "${RAYGUI_LIBRARY}")
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/libs/raygui/include)
 if(NOT RAYGUI_LIBRARY)

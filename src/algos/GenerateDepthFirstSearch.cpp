@@ -20,6 +20,7 @@ void GenerateDepthFirstSearch::makeStep()
         _myStack.push(_currentTile);
         _currentTile = nextNeighbor;
         _currentTile->isVisited = true;
+        _totalOperations++;
     } else {
         if (!_myStack.empty()) {
             _currentTile->setTypeStyle(TileTypeStyle::Empty);
@@ -30,6 +31,7 @@ void GenerateDepthFirstSearch::makeStep()
                 _currentTile->inBtwWall = nullptr;
             }
             _myStack.pop();
+            _totalOperations++;
         } else {
             _currentTile = nullptr;
             _isCompleted = true;
@@ -63,9 +65,10 @@ void GenerateDepthFirstSearch::convertToPathBetween(const std::shared_ptr<Tile>&
     }
 }
 
-std::shared_ptr<Tile> GenerateDepthFirstSearch::getRandomNeighbor() const
+std::shared_ptr<Tile> &GenerateDepthFirstSearch::getRandomNeighbor()
 {
     std::vector<grid_pos_t> unvisitedNeighbors;
+    static std::shared_ptr<Tile> nullTile = nullptr;
 
     std::vector<grid_pos_t> possibleNeighbors = {
         {_currentTile->posI - 2, _currentTile->posJ}, // Up
@@ -85,8 +88,9 @@ std::shared_ptr<Tile> GenerateDepthFirstSearch::getRandomNeighbor() const
     if (!unvisitedNeighbors.empty()) {
         int randomIndex = GetRandomValue(0, static_cast<int>(unvisitedNeighbors.size()) - 1);
         grid_pos_t selectedPos = unvisitedNeighbors[randomIndex];
+        _totalOperations++;
         return (*_grid)[selectedPos.first][selectedPos.second];
     }
 
-    return nullptr;
+    return nullTile;
 }

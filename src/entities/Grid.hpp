@@ -86,6 +86,7 @@ public:
     virtual void init(grid_t *grid) = 0;
     virtual void makeStep() = 0;
     virtual bool isCompleted() const {return _isCompleted;}
+    virtual unsigned int getTotalOperations() const {return _totalOperations;}
     virtual const char* getAlgoTypeString() {
         switch (_algoType) {
             case A_STAR: return "A*";
@@ -99,6 +100,7 @@ protected:
     AlgoType _algoType = AlgoType::NONE;
     grid_t *_grid = nullptr;
     bool _isCompleted = false;
+    unsigned int _totalOperations = 0;
 private:
 };
 
@@ -117,7 +119,7 @@ public:
 protected:
     Vector2 _mousePosition = GetMousePosition();
 //  ---- GUI ----
-    Rectangle _window = { SCREEN_WIDTH - 210, 10, 200, 300 };
+    Rectangle _window = { SCREEN_WIDTH - 210, 10, 200, 360 };
     bool _isDragging = false;
     Vector2 _dragOffset = { 0 };
     bool _wallCheck = true; //Checkbox for _typeToPut
@@ -132,6 +134,9 @@ protected:
     TileTypeStyle _typeToPut = Wall;
     AlgoType _algoType = A_STAR;
 private:
+    unsigned int _steps = 0;
+    unsigned int _totalOperations = 0;
+    float _algoTime = 0;
     Tile *_selectedTile = nullptr;
     Tile *_targetTile = nullptr;
     Tile *_startTile = nullptr;
@@ -166,7 +171,7 @@ public:
     }
 private:
     void convertToPathBetween(const std::shared_ptr<Tile>& current, const std::shared_ptr<Tile>& next);
-    std::shared_ptr<Tile> getRandomNeighbor() const;
+    std::shared_ptr<Tile> &getRandomNeighbor();
 };
 
 #endif /* !GRID_HPP_ */

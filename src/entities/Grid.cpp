@@ -52,13 +52,16 @@ void Grid::update(float deltaTime, std::vector<std::shared_ptr<IEntity>> &m_enti
     //Algorithm update
     if (_algo) {
         stepClock += deltaTime;
+        _algoTime += deltaTime;
         if (!_algo->isCompleted()) {
             if (stepClock >= 0.001f) {
                 stepClock = 0.0f;
                 _algo->makeStep();
+                _steps++;
+                _totalOperations = _algo->getTotalOperations();
             }
         } else {
-            INFO("{0} algorithm just finshed", _algo->getAlgoTypeString());
+            INFO("Completed -> {0} with {1} steps", _algo->getAlgoTypeString(), _steps);
             _algo = nullptr;
         }
     }
@@ -97,12 +100,18 @@ void Grid::drawGUI()
     float startY = _window.y + 30.0f;
     float yOffset = 35.0f, yOffset1 = 25.0f, yOffset2 = 20.0f;
     float currentY = startY;
-    GuiLabel((Rectangle){_window.x + 10, currentY, _window.width - 20, 20}, TextFormat("Mouse Position : %d, %d", (int)_mousePosition.x, (int)_mousePosition.y));
+    GuiLabel((Rectangle){_window.x + 10, currentY, _window.width - 20, 20}, TextFormat("Mouse Position:            %d, %d", (int)_mousePosition.x, (int)_mousePosition.y));
     currentY += yOffset2;
-    GuiLabel((Rectangle){_window.x + 10, currentY, _window.width - 20, 20}, TextFormat("Current index  : %d, %d", i, j));
+    GuiLabel((Rectangle){_window.x + 10, currentY, _window.width - 20, 20}, TextFormat("Current index:             %d, %d", i, j));
+    currentY += yOffset2;
+    GuiLabel((Rectangle){_window.x + 10, currentY, _window.width - 20, 20}, TextFormat("Number of steps:          %d", _steps));
+    currentY += yOffset2;
+    GuiLabel((Rectangle){_window.x + 10, currentY, _window.width - 20, 20}, TextFormat("Total operations:         %u", _totalOperations));
+    currentY += yOffset2;
+    GuiLabel((Rectangle){_window.x + 10, currentY, _window.width - 20, 20}, TextFormat("Time:                         %.2fs", _algoTime));
     currentY += yOffset2;
     if (i >= 0 && i < _grid.size() && j >= 0 && j < _grid[i].size()) {
-        GuiLabel((Rectangle){_window.x + 10, currentY, _window.width - 20, 20}, TextFormat("Tile type : %s", _grid[i][j] ? _grid[i][j]->getTypeString() : "NaN"));
+        GuiLabel((Rectangle){_window.x + 10, currentY, _window.width - 20, 20}, TextFormat("Tile type: %s", _grid[i][j] ? _grid[i][j]->getTypeString() : "NaN"));
         currentY += yOffset2;
     }
     GuiLabel((Rectangle){_window.x + 10, currentY, _window.width - 20, 20}, "Type to put");
@@ -210,6 +219,9 @@ void Grid::events()
         _algo->init(&_grid);
         INFO("Using -> {0}", _algo->getAlgoTypeString());
         _isGenerateClicked = false;
+        _steps = 0;
+        _totalOperations = 0;
+        _algoTime = 0;
         return;
     }
 
