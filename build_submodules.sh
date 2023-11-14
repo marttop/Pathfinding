@@ -1,5 +1,7 @@
 #!/bin/bash
 workdir=$(pwd)
+platform=$(uname)
+arch=$(uname -m)
 
 # Raylib
 if [ ! -f "${workdir}/libs/raylib/lib/libraylib.so" ]; then
@@ -18,10 +20,17 @@ if [ ! -f "${workdir}/libs/raygui/raygui.so" ]; then
   echo 'Building raygui...'
   cd ${workdir}/submodules/raygui
   cp src/raygui.h src/raygui.c
-  gcc -o raygui.so src/raygui.c -shared -fpic -DRAYGUI_IMPLEMENTATION \
-      -I${workdir}/libs/raylib/include \
-      -L${workdir}/libs/raylib/lib \
-      -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
+  if [[ $platform == "Darwin" && $arch == "arm64" ]]; then
+    gcc -o libraygui.dylib src/raygui.c -shared -fpic -DRAYGUI_IMPLEMENTATION \
+        -I${workdir}/libs/raylib/include \
+        -L${workdir}/libs/raylib/lib \
+        -framework OpenGL -lm -lpthread -ldl $(pkg-config --libs --cflags raylib)
+  else
+    gcc -o libraygui.so src/raygui.c -shared -fpic -DRAYGUI_IMPLEMENTATION \
+        -I${workdir}/libs/raylib/include \
+        -L${workdir}/libs/raylib/lib \
+        -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
+  fi
   if [ ! -d "${workdir}/libs/raygui" ]; then
     mkdir ${workdir}/libs/raygui
   fi
@@ -29,7 +38,11 @@ if [ ! -f "${workdir}/libs/raygui/raygui.so" ]; then
     mkdir ${workdir}/libs/raygui/include
   fi
   cp raygui.so ${workdir}/libs/raygui
-  mv ${workdir}/libs/raygui/raygui.so ${workdir}/libs/raygui/libraygui.so
+  if [[ $platform == "Darwin" && $arch == "arm64" ]]; then
+    mv ${workdir}/submodules/raygui/libraygui.dylib ${workdir}/libs/raygui/libraygui.dylib
+  else
+    mv ${workdir}/libs/raygui/libraygui.so ${workdir}/libs/raygui/libraygui.so
+  fi
   cp src/raygui.h ${workdir}/libs/raygui/include
 fi
 echo 'raygui done'
