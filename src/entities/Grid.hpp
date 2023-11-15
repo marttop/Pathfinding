@@ -96,6 +96,15 @@ public:
             default: return "Unknown";
         }
     }
+    static const char* getAlgoTypeString(AlgoType type) {
+        switch (type) {
+            case A_STAR: return "A*";
+            case DIJKSTRA: return "Dijkstra";
+            case BEST_FIT_SEARCH: return "Best Fit Search";
+            case DEPTH_FIRST_SEARCH: return "Depth First Search";
+            default: return "Unknown";
+        }
+    }
 protected:
     AlgoType _algoType = AlgoType::NONE;
     grid_t *_grid = nullptr;
@@ -203,7 +212,7 @@ public:
             }
         }
         if (!_endTile || !_startTile) {
-            throw std::runtime_error(std::string(getAlgoTypeString()) + std::string(" - No start or destination"));
+            throw std::runtime_error(std::string(getAlgoTypeString()) + std::string(" [No start or destination]"));
         }
         ERROR("Manhattan : {0}", calculateManhattanDistance(_startTile, _endTile));
     }

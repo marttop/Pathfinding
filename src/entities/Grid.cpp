@@ -222,7 +222,7 @@ void Grid::events()
     else if (_isStartClicked) {
         //Pathfinding
         INFO("Pressed - Start Solving");
-        initAlgo(AlgoType::A_STAR);
+        initAlgo(_algoType);
         _isStartClicked = false;
         return;
     }
@@ -320,9 +320,10 @@ void Grid::initAlgo(AlgoType type)
                 break;
             default: _algo = nullptr;
         }
+        if (!_algo) throw std::runtime_error(std::string(IAlgo::getAlgoTypeString(type)) + std::string(" [Algorithm not supported]"));
         _algo->init(&_grid);
-    } catch (const std::runtime_error& e) {
-        ERROR("Exception caught during _algo->init: {0}", e.what());
+    } catch (const std::exception& e) {
+        ERROR("{0}: Exception caught during Grid::initAlgo", e.what());
         _algo = nullptr;
         return;
     }
