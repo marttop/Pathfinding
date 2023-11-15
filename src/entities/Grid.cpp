@@ -35,20 +35,6 @@ void Grid::update(float deltaTime, std::vector<std::shared_ptr<IEntity>> &m_enti
     _mousePosition = GetMousePosition();
     bool isMouseOnUI = CheckCollisionPointRec(_mousePosition, _window);
 
-    //Grid update
-    for (const auto &lines : _grid) {
-        for (const auto &tile : lines) {
-            tile->update(deltaTime, m_entities);
-            if (isMouseOnUI) continue;
-            //Override tile update here with events if needed
-            bool isCollision = CheckCollisionPointRec(_mousePosition, tile->getRect());
-            if (isCollision) {
-                tile->isSelected = true;
-                _selectedTile = tile.get();
-            }
-        }
-    }
-
     //Algorithm update
     if (_algo) {
         stepClock += deltaTime;
@@ -63,6 +49,26 @@ void Grid::update(float deltaTime, std::vector<std::shared_ptr<IEntity>> &m_enti
         } else {
             INFO("Completed -> {0} with {1} steps", _algo->getAlgoTypeString(), _steps);
             _algo = nullptr;
+        }
+    }
+
+    //Grid update
+    for (const auto &lines : _grid) {
+        for (const auto &tile : lines) {
+            if (_isStopClicked) {
+                if (tile->getTypeStyle() == TileTypeStyle::Searching)
+                    tile->setTypeStyle(TileTypeStyle::Empty);
+                tile->isVisited = false;
+                tile->inBtwWall = nullptr;
+            }
+            tile->update(deltaTime, m_entities);
+            if (isMouseOnUI) continue;
+            //Override tile update here with events if needed
+            bool isCollision = CheckCollisionPointRec(_mousePosition, tile->getRect());
+            if (isCollision) {
+                tile->isSelected = true;
+                _selectedTile = tile.get();
+            }
         }
     }
 
@@ -137,9 +143,11 @@ void Grid::drawGUI()
 
     if (GuiButton((Rectangle){_window.x + 10, currentY, _window.width - 20, 30}, "Clear")) _isClearClicked = true;
     currentY += yOffset;
-    if (GuiButton((Rectangle){_window.x + 10, currentY, _window.width - 20, 30}, "Start")) _isStartClicked = true;
-    currentY += yOffset;
     if (GuiButton((Rectangle){_window.x + 10, currentY, _window.width - 20, 30}, "Generate Maze")) _isGenerateClicked = true;
+    currentY += yOffset;
+    if (GuiButton((Rectangle){_window.x + 10, currentY, _window.width - 20, 30}, "Solve Maze")) _isStartClicked = true;
+    currentY += yOffset;
+    if (GuiButton((Rectangle){_window.x + 10, currentY, _window.width - 20, 30}, "Stop")) _isStopClicked = true;
     currentY += yOffset;
 
     if (_wallCheck != wasWallChecked) {
@@ -205,23 +213,24 @@ void Grid::events()
         resetGrid();
         return;
     }
-    if (_isStartClicked) {
+    else if (_isStopClicked) {
+        INFO("Pressed - Stop");
+        _isStopClicked = false;
+        _algo = nullptr;
+        return;
+    }
+    else if (_isStartClicked) {
         //Pathfinding
         INFO("Pressed - Start Solving");
+        initAlgo(AlgoType::A_STAR);
         _isStartClicked = false;
         return;
     }
-    if (_isGenerateClicked) {
+    else if (_isGenerateClicked) {
         //Maze Genration
         INFO("Pressed - Generate Maze");
-        _algo = nullptr;
-        _algo = std::make_shared<GenerateDepthFirstSearch>();
-        _algo->init(&_grid);
-        INFO("Using -> {0}", _algo->getAlgoTypeString());
+        initAlgo(AlgoType::DEPTH_FIRST_SEARCH);
         _isGenerateClicked = false;
-        _steps = 0;
-        _totalOperations = 0;
-        _algoTime = 0;
         return;
     }
 
@@ -279,11 +288,45 @@ void Grid::resetGrid()
     for (const auto &lines : _grid) {
         for (const auto &tile : lines) {
             tile->setTypeStyle(TileTypeStyle::Empty);
-            _selectedTile = nullptr;
-            _startTile = nullptr;
-            _targetTile = nullptr;
+            tile->isVisited = false;
+            tile->inBtwWall = nullptr;
+            tile->realType = TileType::FREE;
         }
     }
+    _selectedTile = nullptr;
+    _startTile = nullptr;
+    _targetTile = nullptr;
+}
+
+void Grid::initAlgo(AlgoType type)
+{
+    _algo = nullptr;
+    try {
+        _steps = 0;
+        _totalOperations = 0;
+        _algoTime = 0;
+        switch (type) {
+            case A_STAR:
+                _algo = std::make_shared<AStar>();
+                break;
+            case DIJKSTRA:
+                _algo = nullptr;
+                break;
+            case BEST_FIT_SEARCH:
+                _algo = nullptr;
+                break;
+            case DEPTH_FIRST_SEARCH:
+                _algo = std::make_shared<DepthFirstSearch>();
+                break;
+            default: _algo = nullptr;
+        }
+        _algo->init(&_grid);
+    } catch (const std::runtime_error& e) {
+        ERROR("Exception caught during _algo->init: {0}", e.what());
+        _algo = nullptr;
+        return;
+    }
+    INFO("Using -> {0}", _algo->getAlgoTypeString());
 }
 
 // -----------TILE-----------

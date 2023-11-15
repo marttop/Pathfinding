@@ -27,6 +27,7 @@ endif()
 target_sources(${PROJECT_NAME} PRIVATE "src/GameController.cpp")
 target_sources(${PROJECT_NAME} PRIVATE "src/entities/Grid.cpp")
 target_sources(${PROJECT_NAME} PRIVATE "src/algos/GenerateDepthFirstSearch.cpp")
+target_sources(${PROJECT_NAME} PRIVATE "src/algos/AStar.cpp")
 
 # Project includes
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)

@@ -1,15 +1,15 @@
 /*
 ** raylib_base
 ** File description:
-** GenerateDepthFirstSearch
+** DepthFirstSearch
 */
 
 #include "Grid.hpp"
 
-void GenerateDepthFirstSearch::makeStep()
+void DepthFirstSearch::makeStep()
 {
     if (!_currentTile) {
-        ERROR("GenerateDepthFirstSearch::makeStep() : no _currentTile set");
+        ERROR("DepthFirstSearch::makeStep() : no _currentTile set");
         return;
     }
     std::shared_ptr<Tile> nextNeighbor = getRandomNeighbor();
@@ -40,7 +40,7 @@ void GenerateDepthFirstSearch::makeStep()
     }
 }
 
-void GenerateDepthFirstSearch::convertToPathBetween(const std::shared_ptr<Tile>& current, const std::shared_ptr<Tile>& next)
+void DepthFirstSearch::convertToPathBetween(const std::shared_ptr<Tile>& current, const std::shared_ptr<Tile>& next)
 {
     std::shared_ptr<Tile> wallTile;
 
@@ -65,7 +65,7 @@ void GenerateDepthFirstSearch::convertToPathBetween(const std::shared_ptr<Tile>&
     }
 }
 
-std::shared_ptr<Tile> &GenerateDepthFirstSearch::getRandomNeighbor()
+std::shared_ptr<Tile> &DepthFirstSearch::getRandomNeighbor()
 {
     std::vector<grid_pos_t> unvisitedNeighbors;
     static std::shared_ptr<Tile> nullTile = nullptr;
