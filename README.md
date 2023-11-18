@@ -3,6 +3,16 @@
 ## Description
 
 This is a simple project trying to implement different kind of pathfinding algorithms in an editor.
+<table>
+  <tr>
+    <td><img src="https://github.com/marttop/Pathfinding/assets/47113036/b2d468b8-5008-4176-9015-934197951322" alt="Image 1" style="width:100%;"></td>
+    <td><img src="https://github.com/marttop/Pathfinding/assets/47113036/5d309749-a21c-4b16-aa64-26ce07f4d5f7" alt="Image 2" style="width:100%;"></td>
+  </tr>
+  <tr>
+    <td><img src="https://github.com/marttop/Pathfinding/assets/47113036/667973ed-4ac5-4aef-bd5d-ea8d05847134" alt="Image 3" style="width:100%;"></td>
+    <td><img src="https://github.com/marttop/Pathfinding/assets/47113036/ebdba5b4-6ed6-4024-bd55-0ddcb641ae4c" alt="Image 4" style="width:100%;"></td>
+  </tr>
+</table>
 
 ## Project Status
 
