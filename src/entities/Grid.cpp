@@ -141,6 +141,8 @@ void Grid::drawGUI()
     GuiCheckBox((Rectangle){_window.x + 130, currentY, 20, 20}, "Best fit", &_bestFitCheck);
     currentY += yOffset1;
 
+    if (GuiButton((Rectangle){_window.x + 10, currentY, _window.width - 20, 30}, "Clean")) _isCleanClicked = true;
+    currentY += yOffset;
     if (GuiButton((Rectangle){_window.x + 10, currentY, _window.width - 20, 30}, "Clear")) _isClearClicked = true;
     currentY += yOffset;
     if (GuiButton((Rectangle){_window.x + 10, currentY, _window.width - 20, 30}, "Generate Maze")) _isGenerateClicked = true;
@@ -208,9 +210,14 @@ void Grid::drawGUI()
 void Grid::events()
 {
     //GUI events
+    if (_isCleanClicked) {
+        INFO("Pressed - Clean");
+        cleanGrid();
+        return;
+    }
     if (_isClearClicked) {
         INFO("Pressed - Clear");
-        resetGrid();
+        resetGrid(false);
         return;
     }
     else if (_isStopClicked) {
@@ -282,15 +289,33 @@ void Grid::events()
     }
 }
 
-void Grid::resetGrid()
+void Grid::resetGrid(bool isWall)
 {
     _isClearClicked = false;
     for (const auto &lines : _grid) {
         for (const auto &tile : lines) {
-            tile->setTypeStyle(TileTypeStyle::Empty);
-            tile->isVisited = false;
-            tile->inBtwWall = nullptr;
-            tile->realType = TileType::FREE;
+            if (isWall) {
+                tile->setTypeStyle(TileTypeStyle::Wall);
+                tile->realType = TileType::OBSTRUCTION;
+            } else {
+                tile->setTypeStyle(TileTypeStyle::Empty);
+                tile->realType = TileType::FREE;
+            }
+
+            tile->init();
+        }
+    }
+    _selectedTile = nullptr;
+    _startTile = nullptr;
+    _targetTile = nullptr;
+}
+
+void Grid::cleanGrid()
+{
+    _isCleanClicked = false;
+    for (const auto &lines : _grid) {
+        for (const auto &tile : lines) {
+            tile->init();
         }
     }
     _selectedTile = nullptr;
@@ -344,4 +369,12 @@ void Tile::draw() const
     } else {
         DrawRectangleLines(_rect.x, _rect.y,_rect.width, _rect.height, _borderColor);
     }
+}
+
+
+int Tile::f()
+{
+    int gCost = this->gCost;
+    int hCost = this->hCost;
+    return gCost + hCost;
 }

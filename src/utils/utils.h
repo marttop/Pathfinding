@@ -22,5 +22,7 @@
 #include <memory>
 #include <map>
 #include <stack>
+#include <unordered_set>
+#include <queue>
 
 #endif /* !UTILS_H_ */
